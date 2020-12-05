@@ -2,12 +2,13 @@ package com.github.odilonjk.booking.controller;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.github.odilonjk.booking.domain.exception.BookingNotFoundException;
+import com.github.odilonjk.booking.domain.exception.InvalidBookingRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.util.NoSuchElementException;
 import java.util.Objects;
 
 @ControllerAdvice
@@ -17,32 +18,40 @@ public class ResponseExceptionHandler {
     protected ResponseEntity<ErrorDetails> handleBadRequest(IllegalArgumentException e) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorDetails("invalid.argument", e.getMessage()));
+                .body(new ErrorDetails("invalid.argument"));
     }
 
     @ExceptionHandler(BookingNotFoundException.class)
     protected ResponseEntity<ErrorDetails> handleNotFound(BookingNotFoundException e) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(new ErrorDetails("not_found.booking", e.getMessage()));
+                .body(new ErrorDetails("not_found.booking"));
+    }
+
+    @ExceptionHandler(InvalidBookingRequestException.class)
+    public ResponseEntity<ErrorDetails> handleInvalidBookingDuration(Exception e) {
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(new ErrorDetails(e.getCause().getCause().getMessage()));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorDetails> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorDetails(e.getAllErrors().get(0).getDefaultMessage()));
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private class ErrorDetails {
         private final String code;
-        private final String message;
 
-        public ErrorDetails(String code, String message) {
+        public ErrorDetails(String code) {
             this.code = Objects.requireNonNull(code);
-            this.message = message;
         }
 
         public String getCode() {
             return code;
-        }
-
-        public String getMessage() {
-            return message;
         }
 
     }

@@ -2,6 +2,7 @@ package com.github.odilonjk.booking.domain.entity;
 
 import com.github.odilonjk.booking.domain.Booking;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.time.LocalDate;
@@ -11,12 +12,16 @@ import java.util.UUID;
 public class BookingEntity implements Booking {
 
     @Id
-    private final UUID id;
+    private UUID id;
+    private String username;
+    private String email;
+    @Column(name = "start_date")
+    private LocalDate startDate;
+    @Column(name = "end_date")
+    private LocalDate endDate;
 
-    private final String username;
-    private final String email;
-    private final LocalDate startDate;
-    private final LocalDate endDate;
+    public BookingEntity() {
+    }
 
     public BookingEntity(UUID id, String username, String email, LocalDate startDate, LocalDate endDate) {
         this.id = id;
@@ -52,7 +57,7 @@ public class BookingEntity implements Booking {
     }
 
     @Override
-    public String getCode() {
-        return id.toString();
+    public UUID getCode() {
+        return id;
     }
 }

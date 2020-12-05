@@ -6,3 +6,9 @@ spring:
     passaword: password
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jackson:
+    property-naming-strategy: SNAKE_CASE

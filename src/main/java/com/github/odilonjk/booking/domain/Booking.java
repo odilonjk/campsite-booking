@@ -1,6 +1,7 @@
 package com.github.odilonjk.booking.domain;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 /**
  * Booking represents the booking model.
@@ -12,6 +13,6 @@ public interface Booking {
     LocalDate getStartDate();
     LocalDate getEndDate();
     long getDaysAmount();
-    String getCode();
+    UUID getCode();
 
 }
