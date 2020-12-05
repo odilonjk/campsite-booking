@@ -4,8 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.github.odilonjk.booking.domain.Booking;
-import com.github.odilonjk.booking.domain.exception.InvalidBookingRequestException;
-import org.apache.tomcat.jni.Local;
+import com.github.odilonjk.booking.exception.InvalidBookingRequestException;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -41,6 +40,10 @@ public class BookingRequest implements Booking {
 
         if (today.getMonth().compareTo(startDate.getMonth()) > 0) {
             throw new InvalidBookingRequestException("invalid.start_month");
+        }
+
+        if (endDate.isBefore(startDate)) {
+            throw new InvalidBookingRequestException("invalid.end_date");
         }
 
         if (ChronoUnit.DAYS.between(startDate, endDate) > 3) {

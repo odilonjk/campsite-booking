@@ -26,4 +26,16 @@ public class BookingController {
     public ResponseEntity<UUID> createBooking(@Valid @RequestBody BookingRequest request) {
         return ResponseEntity.ok(bookingService.createBooking(request));
     }
+
+    @DeleteMapping("/bookings/{id}")
+    public ResponseEntity<Void> removeBooking(@PathVariable UUID id) {
+        bookingService.removeBooking(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("bookings/{id}")
+    public ResponseEntity<Void> updateBooking(@PathVariable UUID id, @Valid @RequestBody BookingRequest request) {
+        bookingService.updateBooking(id, request);
+        return ResponseEntity.noContent().build();
+    }
 }

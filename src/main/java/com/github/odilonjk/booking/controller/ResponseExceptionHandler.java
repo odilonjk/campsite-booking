@@ -1,8 +1,8 @@
 package com.github.odilonjk.booking.controller;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.github.odilonjk.booking.domain.exception.BookingNotFoundException;
-import com.github.odilonjk.booking.domain.exception.InvalidBookingRequestException;
+import com.github.odilonjk.booking.exception.BookingNotFoundException;
+import com.github.odilonjk.booking.exception.InvalidBookingRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

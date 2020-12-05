@@ -1,9 +1,8 @@
 package com.github.odilonjk.booking.service;
 
-import com.github.odilonjk.booking.controller.BookingRequest;
 import com.github.odilonjk.booking.domain.Booking;
 import com.github.odilonjk.booking.domain.entity.BookingEntity;
-import com.github.odilonjk.booking.domain.exception.BookingNotFoundException;
+import com.github.odilonjk.booking.exception.BookingNotFoundException;
 import com.github.odilonjk.booking.domain.repository.BookingRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +17,7 @@ public class BookingService {
         this.repository = repository;
     }
 
-    public Booking findBooking(UUID id) {
+    public BookingEntity findBooking(UUID id) {
         return repository.findById(id)
                 .orElseThrow(() -> new BookingNotFoundException("Booking not found for id code: " + id.toString()));
     }
@@ -31,5 +30,18 @@ public class BookingService {
                 request.getEndDate());
         var booking = repository.save(newBooking);
         return booking.getCode();
+    }
+
+    public void removeBooking(UUID id) {
+        repository.deleteById(id);
+    }
+
+    public void updateBooking(UUID id, Booking bookingValues) {
+        var booking = this.findBooking(id);
+        booking.setUsername(bookingValues.getUsername());
+        booking.setEmail(bookingValues.getEmail());
+        booking.setStartDate(bookingValues.getStartDate());
+        booking.setEndDate(bookingValues.getEndDate());
+        repository.save(booking);
     }
 }

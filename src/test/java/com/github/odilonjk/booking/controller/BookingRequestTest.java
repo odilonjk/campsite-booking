@@ -1,6 +1,6 @@
 package com.github.odilonjk.booking.controller;
 
-import com.github.odilonjk.booking.domain.exception.InvalidBookingRequestException;
+import com.github.odilonjk.booking.exception.InvalidBookingRequestException;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -47,6 +47,12 @@ public class BookingRequestTest {
                         "invalid.start_month",
                         LocalDate.now().plus(2, ChronoUnit.MONTHS),
                         LocalDate.now().plus(3, ChronoUnit.DAYS).plus(2, ChronoUnit.MONTHS)
+                ),
+                Arguments.of(
+                        "Should not allow a booking request end date before start date",
+                        "invalid.end_date",
+                        LocalDate.now().plus(2, ChronoUnit.DAYS),
+                        LocalDate.now().plus(1, ChronoUnit.DAYS)
                 )
         );
     }

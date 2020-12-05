@@ -1,4 +1,4 @@
-package com.github.odilonjk.booking.domain.exception;
+package com.github.odilonjk.booking.exception;
 
 public class BookingNotFoundException extends RuntimeException {
 

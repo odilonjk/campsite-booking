@@ -1,6 +1,7 @@
 package com.github.odilonjk.booking.domain;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 /**
@@ -12,7 +13,10 @@ public interface Booking {
     String getEmail();
     LocalDate getStartDate();
     LocalDate getEndDate();
-    long getDaysAmount();
     UUID getCode();
+
+    default long getDaysAmount() {
+        return ChronoUnit.DAYS.between(getStartDate(), getEndDate());
+    }
 
 }

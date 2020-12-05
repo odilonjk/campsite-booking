@@ -1,7 +1,7 @@
 package com.github.odilonjk.booking.controller;
 
 import com.github.odilonjk.booking.domain.Booking;
-import com.github.odilonjk.booking.domain.exception.BookingNotFoundException;
+import com.github.odilonjk.booking.exception.BookingNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,52 +31,89 @@ public class BookingControllerTest {
     @Test
     @DisplayName("Should have found successfully the required booking")
     void testFindBookingSuccessfully() {
-        // GIVEN
+        // CREATING BOOKING
         var startDate = LocalDate.now().plus(5, ChronoUnit.DAYS);
         var endDate = startDate.plus(3, ChronoUnit.DAYS);
-        var request = new BookingRequest("Fulano", "aff@o", startDate, endDate);
-        var response = controller.createBooking(request);
-        var code = UUID.fromString(response.getBody().toString());
+        var username = "Foo Bar";
+        var email = "foo@bar";
+        var request = new BookingRequest(username, email, startDate, endDate);
+        var createResponse = controller.createBooking(request);
+        var code = UUID.fromString(createResponse.getBody().toString());
 
-        // WHEN
-        ResponseEntity<Booking> booking = controller.getBooking(code);
+        // SEARCHING BOOKING
+        ResponseEntity<Booking> findResponse = controller.getBooking(code);
 
-        // THEN
-        assertNotNull(booking);
+        // ASSERTS
+        var booking = findResponse.getBody();
+        assertNotNull(booking, "Should have found the booking");
+        assertEquals(3, booking.getDaysAmount(), "Should have considered the correct amount of booking days");
+        assertEquals(email, booking.getEmail(), "Should have the same email");
+        assertEquals(username, booking.getUsername(), "Should have the same user name");
+        assertEquals(code, booking.getCode(), "Should have the same code");
+        assertEquals(startDate, booking.getStartDate(), "Should have the same start date");
+        assertEquals(endDate, booking.getEndDate(), "Should have the same end date");
     }
 
-//    @DisplayName("Should return Bad Request when the username is not filled")
-//    public void testUsername() {
-//        // GIVEN
-//        final var username = "";
-//        final var email = "tester@booking.camp";
-//        final var startDate = LocalDate.now();
-//        final var endDate = startDate.plus(1, ChronoUnit.DAYS);
-//        var bookingRequest = new BookingRequest(username, email, startDate, endDate);
-//
-//        controller.createBooking(bookingRequest);
-//        // THEN
-//
-//
-//
-//
-//    }
+    @Test
+    @DisplayName("Should update successfully the required booking")
+    void testUpdateBookingSuccessfully() {
+        // CREATING BOOKING
+        var startDate = LocalDate.now().plus(5, ChronoUnit.DAYS);
+        var endDate = startDate.plus(3, ChronoUnit.DAYS);
+        var username = "Foo Bar";
+        var email = "foo@bar";
+        var request = new BookingRequest(username, email, startDate, endDate);
+        var createResponse = controller.createBooking(request);
+        var code = UUID.fromString(createResponse.getBody().toString());
 
-//    @ParameterizedTest(name = "Should book a campsite for {days} days: {result}")
-//    public void testBookMaxDays(int days, boolean result) {
-//        // GIVEN
-//        final var username = "Foo 'Tester' Bar";
-//        final var email = "tester@booking.camp";
-//        final var startDate = LocalDate.now();
-//        final var endDate = startDate.plus(days, ChronoUnit.DAYS);
-//        var bookingRequest = new BookingRequest(username, email, startDate, endDate);
-//
-//        // WHEN
-//        var code = controller.createBooking(bookingRequest);
-//
-//        // THEN
-//        Assertions.assert
-//
-//    }
+        // SEARCHING BOOKING
+        ResponseEntity<Booking> findResponse = controller.getBooking(code);
+
+        // ASSERTS
+        var booking = findResponse.getBody();
+        assertNotNull(booking, "Should have found the booking");
+        assertEquals(3, booking.getDaysAmount(), "Should have considered the correct amount of booking days");
+        assertEquals(email, booking.getEmail(), "Should have the same email");
+        assertEquals(username, booking.getUsername(), "Should have the same user name");
+        assertEquals(code, booking.getCode(), "Should have the same code");
+        assertEquals(startDate, booking.getStartDate(), "Should have the same start date");
+        assertEquals(endDate, booking.getEndDate(), "Should have the same end date");
+
+        // UPDATE BOOKING
+        var newEndDate = endDate.minus(2, ChronoUnit.DAYS);
+        var newBooking = new BookingRequest(username, email, startDate, newEndDate);
+        var updateResponde = controller.updateBooking(code, newBooking);
+        assertTrue(updateResponde.getStatusCode().is2xxSuccessful(), "Should have updated the booking");
+
+        // SEARCHING UPDATED BOOKING
+        ResponseEntity<Booking> findUpdatedResponse = controller.getBooking(code);
+        assertEquals(newEndDate, findUpdatedResponse.getBody().getEndDate(), "Should have the same end date");
+    }
+
+    @Test
+    @DisplayName("Should have successfully canceled the required booking")
+    void testRemoveBookingSuccessfully() {
+        // CREATING BOOKING
+        var startDate = LocalDate.now().plus(5, ChronoUnit.DAYS);
+        var endDate = startDate.plus(3, ChronoUnit.DAYS);
+        var username = "Foo Bar";
+        var email = "foo@bar";
+        var request = new BookingRequest(username, email, startDate, endDate);
+        var createResponse = controller.createBooking(request);
+        var code = UUID.fromString(createResponse.getBody().toString());
+
+        // VALIDATING IT EXISTS
+        ResponseEntity<Booking> findResponse = controller.getBooking(code);
+        assertTrue(findResponse.getStatusCode().is2xxSuccessful(), "Should have found the booking");
+
+        // CANCELING IT
+        ResponseEntity<Void> cancelResponse = controller.removeBooking(code);
+        assertTrue(cancelResponse.getStatusCode().is2xxSuccessful(), "Should have remover the booking");
+
+        // VALIDATING IT DOES NOT EXIST ANYMORE
+        assertThrows(BookingNotFoundException.class, () -> {
+            controller.getBooking(code);
+        });
+    }
 
 }

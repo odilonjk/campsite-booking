@@ -33,31 +33,42 @@ public class BookingEntity implements Booking {
 
     @Override
     public String getUsername() {
-        return null;
+        return username;
     }
 
     @Override
     public String getEmail() {
-        return null;
+        return email;
     }
 
     @Override
     public LocalDate getStartDate() {
-        return null;
+        return startDate;
     }
 
     @Override
     public LocalDate getEndDate() {
-        return null;
-    }
-
-    @Override
-    public long getDaysAmount() {
-        return 0;
+        return endDate;
     }
 
     @Override
     public UUID getCode() {
         return id;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 }
