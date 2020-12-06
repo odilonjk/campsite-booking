@@ -3,6 +3,7 @@ package com.github.odilonjk.booking.controller;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.github.odilonjk.booking.exception.BookingNotFoundException;
 import com.github.odilonjk.booking.exception.InvalidBookingRequestException;
+import com.github.odilonjk.booking.exception.OverlappedBookingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -40,6 +41,13 @@ public class ResponseExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorDetails(e.getAllErrors().get(0).getDefaultMessage()));
+    }
+
+    @ExceptionHandler(OverlappedBookingException.class)
+    public ResponseEntity<ErrorDetails> handleOverlappedBooking(OverlappedBookingException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorDetails("invalid.overlapped_booking"));
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

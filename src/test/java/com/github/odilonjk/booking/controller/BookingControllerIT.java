@@ -13,7 +13,12 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -93,8 +98,8 @@ public class BookingControllerIT {
         // UPDATE BOOKING
         var newEndDate = endDate.minus(2, ChronoUnit.DAYS);
         var newBooking = new BookingRequest(username, email, startDate, newEndDate);
-        var updateResponde = controller.updateBooking(code, newBooking);
-        assertTrue(updateResponde.getStatusCode().is2xxSuccessful(), "Should have updated the booking");
+        var updateResponse = controller.updateBooking(code, newBooking);
+        assertTrue(updateResponse.getStatusCode().is2xxSuccessful(), "Should have updated the booking");
 
         // SEARCHING UPDATED BOOKING
         ResponseEntity<Booking> findUpdatedResponse = controller.getBooking(code);
@@ -213,6 +218,40 @@ public class BookingControllerIT {
         var availableDates = response.getBody();
         assertFalse(availableDates.contains(bookingStartDate), "Should not have found the check-in date as available");
         assertTrue(availableDates.contains(bookingEndDate), "Should have found the check-out date as available");
+    }
+
+    @Test
+    @DisplayName("Should not create overlapping bookings while working concurrently")
+    void testConcurrentBookingCreation() throws InterruptedException {
+        // CONFIG
+        int threadAmount = 2000;
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+        CountDownLatch latch = new CountDownLatch(threadAmount);
+
+        // GIVEN
+        var startDate = LocalDate.now().plus(20, ChronoUnit.DAYS);
+        var endDate = startDate.plus(3, ChronoUnit.DAYS);
+
+        // RUNNING CONCURRENTLY THE BOOKING CREATION
+        List<UUID> codes = new ArrayList<>();
+        for (int i=0; i<threadAmount; i++) {
+            executor.execute(() -> {
+                var username = UUID.randomUUID().toString();
+                var email = username + "@test";
+                try {
+                    var response = controller.createBooking(new BookingRequest(username, email, startDate, endDate));
+                    codes.add(UUID.fromString(response.getBody().toString()));
+                } catch (OverlappedBookingException e) {
+                } finally {
+                    latch.countDown();
+                }
+            });
+
+        }
+        latch.await();
+
+        // ASSERT AFTER RUNNING MULTIPLE CREATION REQUESTS
+        assertEquals(1, codes.size(), "Should have created just one booking");
     }
 
 }

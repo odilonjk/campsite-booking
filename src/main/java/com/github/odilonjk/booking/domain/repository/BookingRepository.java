@@ -14,8 +14,17 @@ import java.util.UUID;
 @Repository
 public interface BookingRepository extends JpaRepository<BookingEntity, UUID> {
 
-    @Query("select case when count(b)> 0 then true else false end from BookingEntity b where b.endDate > :date and b.id != :id")
-    boolean existsBookingToBeOverlapped(@Param("date") LocalDate date, @Param("id") UUID id);
+    @Query("select case when count(b)> 0 then true else false end " +
+            "from BookingEntity b " +
+            "where (b.startDate < :endDate " +
+            "and b.endDate >= :endDate " +
+            "and b.id != :id) " +
+            "or (b.startDate <= :startDate " +
+            "and b.endDate > :startDate " +
+            "and b.id != :id)")
+    boolean existsBookingToBeOverlapped(@Param("startDate") LocalDate startDate,
+                                        @Param("endDate") LocalDate endDate,
+                                        @Param("id") UUID id);
 
     @Query("select startDate, endDate from BookingEntity where startDate >= :start and endDate <= :end")
     List<Tuple> findBookingDatesInDateRange(@Param("start") LocalDate start, @Param("end") LocalDate end);

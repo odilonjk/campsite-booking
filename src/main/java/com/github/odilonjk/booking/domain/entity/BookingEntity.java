@@ -6,31 +6,31 @@ import org.hibernate.annotations.DynamicUpdate;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
 @DynamicUpdate
-public class BookingEntity implements Booking {
+public class BookingEntity implements Booking, Serializable {
 
     @Id
+    @Column(nullable = false)
     private UUID id;
+
+    @Column(nullable = false)
     private String username;
+
+    @Column(nullable = false)
     private String email;
-    @Column(name = "start_date")
+
+    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
-    @Column(name = "end_date")
+
+    @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
     public BookingEntity() {
-    }
-
-    public BookingEntity(UUID id, String username, String email, LocalDate startDate, LocalDate endDate) {
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.startDate = startDate;
-        this.endDate = endDate;
     }
 
     public BookingEntity(UUID id, Booking booking) {
