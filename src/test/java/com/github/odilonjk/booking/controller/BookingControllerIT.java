@@ -4,14 +4,11 @@ import com.github.odilonjk.booking.domain.Booking;
 import com.github.odilonjk.booking.domain.repository.BookingRepository;
 import com.github.odilonjk.booking.exception.BookingNotFoundException;
 import com.github.odilonjk.booking.exception.OverlappedBookingException;
-import com.github.odilonjk.booking.service.BookingService;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
