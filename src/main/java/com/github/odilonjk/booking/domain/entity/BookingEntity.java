@@ -1,6 +1,7 @@
 package com.github.odilonjk.booking.domain.entity;
 
 import com.github.odilonjk.booking.domain.Booking;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,6 +10,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
+@DynamicUpdate
 public class BookingEntity implements Booking {
 
     @Id
@@ -29,6 +31,14 @@ public class BookingEntity implements Booking {
         this.email = email;
         this.startDate = startDate;
         this.endDate = endDate;
+    }
+
+    public BookingEntity(UUID id, Booking booking) {
+        this.id = id;
+        this.username = booking.getUsername();
+        this.email = booking.getEmail();
+        this.startDate = booking.getStartDate();
+        this.endDate = booking.getEndDate();
     }
 
     @Override

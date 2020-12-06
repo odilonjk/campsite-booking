@@ -2,6 +2,7 @@ package com.github.odilonjk.booking.controller;
 
 import com.github.odilonjk.booking.domain.Booking;
 import com.github.odilonjk.booking.service.BookingService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,11 +12,8 @@ import java.util.UUID;
 @RestController
 public class BookingController {
 
+    @Autowired
     private BookingService bookingService;
-
-    public BookingController(BookingService bookingService) {
-        this.bookingService = bookingService;
-    }
 
     @GetMapping("/bookings/{id}")
     public ResponseEntity<Booking> getBooking(@PathVariable UUID id) {
