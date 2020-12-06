@@ -148,7 +148,7 @@ public class BookingControllerIT {
 
         // CREATING SECOND BOOKING
         var startDateSecondBooking = LocalDate.now().plus(7, ChronoUnit.DAYS);
-        var endDateSecondBooking = startDateSecondBooking;
+        var endDateSecondBooking = startDateSecondBooking.plus(3, ChronoUnit.DAYS);
         var secondBookingRequest = new BookingRequest(username, email, startDateSecondBooking, endDateSecondBooking);
 
         // ASSERT IT WAS NOT POSSIBLE TO CREATE SECOND BOOKING BECAUSE OF THE DATE RANGE
@@ -175,7 +175,7 @@ public class BookingControllerIT {
 
         // CREATING SECOND BOOKING
         var startDateSecondBooking = LocalDate.now().plus(8, ChronoUnit.DAYS);
-        var endDateSecondBooking = startDateSecondBooking;
+        var endDateSecondBooking = startDateSecondBooking.plus(1, ChronoUnit.DAYS);
         var secondBookingRequest = new BookingRequest(username, email, startDateSecondBooking, endDateSecondBooking);
         var secondCreateResponse = controller.createBooking(secondBookingRequest);
         var secondCode = UUID.fromString(secondCreateResponse.getBody().toString());
@@ -193,6 +193,29 @@ public class BookingControllerIT {
         assertThrows(OverlappedBookingException.class, () -> {
            controller.updateBooking(secondCode, updateBookingRequest);
         });
+    }
+
+    @Test
+    @DisplayName("Should not show as available dates used by some booking with exception for check-out days")
+    void testFindAvailableDates() {
+        // CREATING BOOKING
+        var bookingStartDate = LocalDate.now().plus(5, ChronoUnit.DAYS);
+        var bookingEndDate = bookingStartDate.plus(3, ChronoUnit.DAYS);
+        var username = "Foo Bar";
+        var email = "foo@bar";
+        var request = new BookingRequest(username, email, bookingStartDate, bookingEndDate);
+        var createResponse = controller.createBooking(request);
+        var code = UUID.fromString(createResponse.getBody().toString());
+
+        // SEARCHING BOOKING
+        ResponseEntity<Booking> findResponse = controller.getBooking(code);
+        assertNotNull(findResponse.getBody(), "Should have found the booking");
+
+        // SEARCHING AVAILABLE DATES
+        var response = controller.getAvailableBookingDates(LocalDate.now(), LocalDate.now().plus(10, ChronoUnit.DAYS));
+        var availableDates = response.getBody();
+        assertFalse(availableDates.contains(bookingStartDate), "Should not have found the check-in date as available");
+        assertTrue(availableDates.contains(bookingEndDate), "Should have found the check-out date as available");
     }
 
 }

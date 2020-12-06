@@ -5,11 +5,16 @@ import com.github.odilonjk.booking.domain.entity.BookingEntity;
 import com.github.odilonjk.booking.domain.repository.BookingRepository;
 import com.github.odilonjk.booking.exception.BookingNotFoundException;
 import com.github.odilonjk.booking.exception.OverlappedBookingException;
+import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
+import javax.persistence.Tuple;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 @Service
 public class BookingService {
@@ -47,5 +52,27 @@ public class BookingService {
         }
         var bookingEntity = new BookingEntity(id, updatedValues);
         repository.save(bookingEntity);
+    }
+
+    public SortedSet<LocalDate> findAvailableBookingDates(LocalDate startDate, LocalDate endDate) {
+        var start = startDate != null ? startDate : LocalDate.now();
+        var end = endDate != null ? endDate : start.plus(1, ChronoUnit.MONTHS);
+        SortedSet<LocalDate> availableDates = new TreeSet<>();
+        Set<LocalDate> unavailableDates = new HashSet<>();
+        List<Tuple> bookings = repository.findBookingDatesInDateRange(start, end);
+        bookings.stream()
+                .forEach(dates -> {
+                    var bookingStart = (LocalDate) dates.get(0);
+                    var bookingEnd = (LocalDate) dates.get(1);
+                    for (LocalDate date = bookingStart; !date.isEqual(bookingEnd); date = date.plus(1, ChronoUnit.DAYS)) {
+                        unavailableDates.add(date);
+                    }
+                });
+        for (LocalDate date = start; !date.isAfter(end); date = date.plus(1, ChronoUnit.DAYS)) {
+            if (!unavailableDates.contains(date)) {
+                availableDates.add(date);
+            }
+        }
+        return availableDates;
     }
 }

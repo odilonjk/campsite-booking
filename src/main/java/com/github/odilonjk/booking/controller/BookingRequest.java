@@ -42,7 +42,7 @@ public class BookingRequest implements Booking {
             throw new InvalidBookingRequestException("invalid.start_month");
         }
 
-        if (endDate.isBefore(startDate)) {
+        if (endDate.isBefore(startDate) || (endDate.isEqual(startDate))) {
             throw new InvalidBookingRequestException("invalid.end_date");
         }
 

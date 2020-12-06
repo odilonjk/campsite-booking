@@ -3,10 +3,13 @@ package com.github.odilonjk.booking.controller;
 import com.github.odilonjk.booking.domain.Booking;
 import com.github.odilonjk.booking.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -18,6 +21,25 @@ public class BookingController {
     @GetMapping("/bookings/{id}")
     public ResponseEntity<Booking> getBooking(@PathVariable UUID id) {
         return ResponseEntity.ok(bookingService.findBooking(id));
+    }
+
+    @GetMapping("/bookings/available-dates")
+    public ResponseEntity<Set<LocalDate>> getAvailableBookingDates(@RequestParam(required = false)
+                                                                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                                                                   LocalDate startDate,
+                                                                   @RequestParam(required = false)
+                                                                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                                                                   LocalDate endDate) {
+        if (startDate != null && endDate == null) {
+            throw new IllegalArgumentException("invalid.end_date");
+        }
+        if (endDate != null && startDate == null) {
+            throw new IllegalArgumentException("invalid.start_date");
+        }
+        if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("invalid.date_range");
+        }
+        return ResponseEntity.ok(bookingService.findAvailableBookingDates(startDate, endDate));
     }
 
     @PostMapping("/bookings")

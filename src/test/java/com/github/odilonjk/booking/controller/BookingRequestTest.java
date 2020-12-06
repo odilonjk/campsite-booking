@@ -49,10 +49,16 @@ public class BookingRequestTest {
                         LocalDate.now().plus(3, ChronoUnit.DAYS).plus(2, ChronoUnit.MONTHS)
                 ),
                 Arguments.of(
-                        "Should not allow a booking request end date before start date",
+                        "Should not allow a booking request with end date before start date",
                         "invalid.end_date",
                         LocalDate.now().plus(2, ChronoUnit.DAYS),
                         LocalDate.now().plus(1, ChronoUnit.DAYS)
+                ),
+                Arguments.of(
+                        "Should not allow a booking request with end date equal to start date",
+                        "invalid.end_date",
+                        LocalDate.now().plus(2, ChronoUnit.DAYS),
+                        LocalDate.now().plus(2, ChronoUnit.DAYS)
                 )
         );
     }
